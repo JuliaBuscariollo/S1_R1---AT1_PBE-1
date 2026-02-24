@@ -1,0 +1,10 @@
+import createMulter from "../config/opload.multer.js";
+
+const uploadImage = createMulter({
+    pasta: 'imagens',
+    tiposPermitidos: ['image/png', 'image/jpeg'],
+    tamanhoArquivo: 10* 1024 *1024 // 10mb
+
+}).single('image');
+
+export default uploadImage;
