@@ -1,4 +1,4 @@
-const categoriaModel = require("../models/categoriaModel.js");
+import categoriaModel from "../model/categoria.model.js";
 
 const categoriaController = {
 
@@ -6,6 +6,7 @@ const categoriaController = {
   criarCategoria: async (req, res) => {
     try {
       const { descricaoCategoria } = req.body;
+      console.log(req.body);
 
       if (!descricaoCategoria) {
         return res.status(400).json({
@@ -28,38 +29,31 @@ const categoriaController = {
     }
   },
 
-  // LISTAR CATEGORIAS
-  listarCategorias: async (req, res) => {
+  listarOuBuscarCategoria: async (req, res) => {
     try {
-      const categorias = await categoriaModel.listarCategorias();
-      res.status(200).json(categorias);
-    } catch (error) {
-      console.error("Erro ao listar categorias:", error);
-      res.status(500).json({
-        message: "Erro ao listar categorias"
-      });
-    }
-  },
+      const  id  = Number(req.query.id);
 
-  // BUSCAR CATEGORIA POR ID
-  buscarCategoriaPorId: async (req, res) => {
-    try {
-      const { id } = req.params;
+      // Se vier ID, busca categoria específica
+      if (id) {
+        const categoria = await categoriaModel.listarOuBuscarCategoria(id);
 
-      const categoria = await categoriaModel.buscarCategoriaPorId(id);
+        if (!categoria) {
+          return res.status(404).json({
+            message: "Categoria não encontrada"
+          });
+        }
 
-      if (!categoria) {
-        return res.status(404).json({
-          message: "Categoria não encontrada"
-        });
+        return res.status(200).json(categoria);
       }
 
-      res.status(200).json(categoria);
+      // Se não vier ID, lista todas
+      const categorias = await categoriaModel.listarOuBuscarCategoria();
+      return res.status(200).json(categorias);
 
     } catch (error) {
-      console.error("Erro ao buscar categoria:", error);
-      res.status(500).json({
-        message: "Erro ao buscar categoria"
+      console.error("Erro ao processar categoria:", error);
+      return res.status(500).json({
+        message: "Erro ao processar categoria"
       });
     }
   },
@@ -69,6 +63,7 @@ const categoriaController = {
     try {
       const { id } = req.params;
       const { descricaoCategoria } = req.body;
+      console.log(req.params, descricaoCategoria);
 
       const atualizado = await categoriaModel.atualizarCategoria(
         id,

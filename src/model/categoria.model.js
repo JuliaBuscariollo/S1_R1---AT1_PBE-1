@@ -1,33 +1,41 @@
-import categoriaController from "../controller/categoria.controller.js";
-const connection = require("../database/connection");
 
+import pool from "../config/db.js";
+
+//CADASTRAR CATEGORIAS
 const categoriaModel = {
 
-  // CADASTRAR CATEGORIA
   criarCategoria: async (descricaoCategoria) => {
-    const query = `
-      INSERT INTO categoria (descricaoCategoria)
-      VALUES (?)
-    `;
-    const [result] = await connection.execute(query, [descricaoCategoria]);
-    return result.insertId;
-  },
+  const query = `
+    INSERT INTO categoria (descricaoCategoria)
+    VALUES (?)
+  `;
 
-  // LISTAR TODAS AS CATEGORIAS
-  listarCategorias: async () => {
-    const query = `SELECT * FROM categoria`;
-    const [rows] = await connection.execute(query);
-    return rows;
-  },
+  const [result] = await pool.execute(query, [descricaoCategoria]);
 
-  // BUSCAR CATEGORIA POR ID
-  buscarCategoriaPorId: async (idCategoria) => {
-    const query = `
-      SELECT * FROM categoria
-      WHERE idCategoria = ?
-    `;
-    const [rows] = await connection.execute(query, [idCategoria]);
-    return rows[0];
+  return result.insertId;
+},
+  listarOuBuscarCategoria: async (idCategoria = null) => {
+    try {
+      let query = `SELECT * FROM categoria`;
+      let params = [];
+
+      if (idCategoria !== null && idCategoria !== undefined) {
+        query += ` WHERE idCategoria = ?`;
+        params.push(idCategoria);
+      }
+
+      const [rows] = await pool.execute(query, params);
+
+      if (idCategoria !== null && idCategoria !== undefined) {
+        return rows[0] || null;
+      }
+
+      return rows;
+
+    } catch (error) {
+      console.error("Erro ao listar ou buscar Categoria:", error);
+      throw error;
+    }
   },
 
   // ATUALIZAR CATEGORIA
@@ -37,7 +45,7 @@ const categoriaModel = {
       SET descricaoCategoria = ?
       WHERE idCategoria = ?
     `;
-    const [result] = await connection.execute(query, [
+    const [result] = await pool.execute(query, [
       descricaoCategoria,
       idCategoria
     ]);
@@ -50,7 +58,7 @@ const categoriaModel = {
       DELETE FROM categoria
       WHERE idCategoria = ?
     `;
-    const [result] = await connection.execute(query, [idCategoria]);
+    const [result] = await pool.execute(query, [idCategoria]);
     return result.affectedRows;
   }
 };

@@ -1,4 +1,4 @@
-const produtoModel = require("../models/produtoModel.js");
+import produtoModel from "../model/produto.model.js";
 
 const produtoController = {
 
@@ -9,15 +9,15 @@ const produtoController = {
         idCategoria,
         nomeProduto,
         valorProduto
-      } = req.body;
+            } = req.body;
 
-      const vinculoImagem = req.file ? req.file.filename : null;
 
       if (!idCategoria || !nomeProduto || !valorProduto) {
         return res.status(400).json({
           message: "Todos os campos obrigatórios devem ser preenchidos"
         });
       }
+      const vinculoImagem = `/uploads/imagens/${req.file.filename}`;
 
       const produto = {
         idCategoria,
@@ -81,19 +81,16 @@ const produtoController = {
   atualizarProduto: async (req, res) => {
     try {
       const { id } = req.params;
-      const {
-        idCategoria,
+      const {       
         nomeProduto,
         valorProduto
       } = req.body;
 
-      const vinculoImagem = req.file ? req.file.filename : null;
-
       const produto = {
-        idCategoria,
+        id,
         nomeProduto,
         valorProduto,
-        vinculoImagem
+        
       };
 
       const atualizado = await produtoModel.atualizarProduto(id, produto);

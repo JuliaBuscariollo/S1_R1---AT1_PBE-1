@@ -1,6 +1,4 @@
-import produtoController from "../controller/produto.controller.js";
-
-const connection = require("../database/connection");
+import pool from "../config/db.js";
 
 const produtoModel = {
 
@@ -19,7 +17,7 @@ const produtoModel = {
       VALUES (?, ?, ?, ?)
     `;
 
-    const [result] = await connection(query, [
+    const [result] = await pool.execute(query, [
       idCategoria,
       nomeProduto,
       valorProduto,
@@ -42,7 +40,7 @@ const produtoModel = {
       FROM produto p
       INNER JOIN categoria c ON p.idCategoria = c.idCategoria
     `;
-    const [rows] = await connection.execute(query);
+    const [rows] = await pool.execute(query);
     return rows;
   },
 
@@ -52,34 +50,24 @@ const produtoModel = {
       SELECT * FROM produto
       WHERE idProduto = ?
     `;
-    const [rows] = await connection.execute(query, [idProduto]);
+    const [rows] = await pool.execute(query, [idProduto]);
     return rows[0];
   },
 
   // ATUALIZAR PRODUTO
-  atualizarProduto: async (idProduto, produto) => {
-    const {
-      idCategoria,
-      nomeProduto,
-      valorProduto,
-      vinculoImagem
-    } = produto;
+  atualizarProduto: async (idProduto, produto, valorProduto) => {
 
     const query = `
       UPDATE produto
       SET 
-        idCategoria = ?,
         nomeProduto = ?,
-        valorProduto = ?,
-        vinculoImagem = ?
+        valorProduto = ?
       WHERE idProduto = ?
     `;
 
-    const [result] = await connection.execute(query, [
-      idCategoria,
-      nomeProduto,
+    const [result] = await pool.execute(query, [
+      produto,
       valorProduto,
-      vinculoImagem,
       idProduto
     ]);
 
@@ -92,7 +80,7 @@ deletarProduto: async (idProduto) => {
       DELETE FROM produto
       WHERE idProduto = ?
     `;
-    const [result] = await connection.execute(query, [idProduto]);
+    const [result] = await pool.execute(query, [idProduto]);
     return result.affectedRows;
   }
 };
